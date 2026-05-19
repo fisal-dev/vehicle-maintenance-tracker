@@ -1,9 +1,15 @@
 {
-  "short_name": "VehicleTracker",
-  "name": "Vehicle Maintenance Tracker",
-  "icons": [],
+  "short_name": "AutoFlow",
+  "name": "AutoFlow Vehicle Maintenance Tracker",
+  "icons": [
+    {
+      "src": "/autoflow_logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0B0F19",
+  "background_color": "#0B0F19"
 }

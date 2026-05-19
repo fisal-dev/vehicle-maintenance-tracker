@@ -1,0 +1,199 @@
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, ArrowRight, ShieldCheck, Car, Check } from "lucide-react";
+import Card from "./ui/Card";
+import Button from "./ui/Button";
+
+const SignUp = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+
+    if (!email || !password || !confirmPassword) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    setTimeout(() => {
+      setLoading(false);
+      alert("Account created successfully!");
+      navigate("/login");
+    }, 1500);
+  };
+
+  // Simple password strength calculator
+  const strength = Math.min(100, (password.length / 12) * 100);
+  const getStrengthColor = () => {
+    if (strength < 33) return "bg-rose-500";
+    if (strength < 66) return "bg-amber-500";
+    return "bg-emerald-500";
+  };
+
+  return (
+    <div className="min-h-screen bg-[#080C14] flex">
+      {/* Left Branding Panel (Hidden on Mobile) */}
+      <div className="hidden lg:flex w-1/2 bg-[#0D1424] relative overflow-hidden flex-col justify-between p-12 border-r border-white/5">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0D1424] to-[#080C14] pointer-events-none"></div>
+        
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 group w-max">
+          <div className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-500/25">
+            <Car className="w-5 h-5 text-indigo-400" />
+          </div>
+          <span className="text-xl font-bold text-white tracking-tight">
+            Auto<span className="text-indigo-400">Flow</span>
+          </span>
+        </Link>
+
+        <div className="relative z-10 max-w-md">
+          <ShieldCheck className="w-12 h-12 text-emerald-400 mb-6 opacity-80" />
+          <h2 className="text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+            Join the new standard <br/> in fleet management.
+          </h2>
+          <ul className="space-y-4 mt-8">
+            {[
+              "Real-time vehicle telemetry tracking",
+              "Automated maintenance forecasting",
+              "Comprehensive expense analytics"
+            ].map((feature, i) => (
+               <li key={i} className="flex items-center gap-3 text-slate-300 font-medium">
+                 <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400">
+                    <Check className="w-3.5 h-3.5" />
+                 </div>
+                 {feature}
+               </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="relative z-10">
+          <p className="text-sm font-medium text-slate-500">
+            © {new Date().getFullYear()} AutoFlow Technologies Inc.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Sign Up Panel */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
+        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        
+        <div className="w-full max-w-[420px] relative z-10 py-12">
+          
+          <div className="lg:hidden flex items-center justify-center gap-2.5 mb-10">
+            <div className="p-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/25">
+              <Car className="w-5 h-5 text-indigo-400" />
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight">
+              Auto<span className="text-indigo-400">Flow</span>
+            </span>
+          </div>
+
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">Create Account</h1>
+            <p className="text-slate-400 text-sm">Step 1 of 1: Configure your access credentials</p>
+          </div>
+
+          <Card variant="bordered" className="p-8 sm:p-10 bg-[#0D1424]/80 backdrop-blur-xl">
+            <form onSubmit={handleSignUp} className="space-y-6">
+              
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-field pl-11 h-12 bg-white/5"
+                    placeholder="manager@fleet.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-field pl-11 h-12 bg-white/5"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                {password && (
+                   <div className="w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
+                     <div className={`h-full ${getStrengthColor()} transition-all duration-300`} style={{ width: `${strength}%` }}></div>
+                   </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Confirm Password</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input-field pl-11 h-12 bg-white/5"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-start gap-3 cursor-pointer group mt-4">
+                <input type="checkbox" required className="w-4 h-4 mt-0.5 rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500/50 focus:ring-offset-0" />
+                <span className="text-xs font-medium text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">
+                  I agree to the <span className="text-indigo-400">Terms of Service</span> and <span className="text-indigo-400">Privacy Policy</span>.
+                </span>
+              </label>
+
+              {error && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-bold text-rose-400 text-center">
+                  {error}
+                </div>
+              )}
+
+              <Button type="submit" variant="primary" size="lg" className="w-full mt-4" isLoading={loading}>
+                Initialize Account <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </form>
+          </Card>
+
+          <p className="mt-8 text-center text-sm font-medium text-slate-400">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors">
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SignUp;

@@ -1,0 +1,264 @@
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard, Car, Wrench, MapPin, ReceiptText,
+  Fuel, GaugeCircle, AlertCircle, User, Settings,
+  Menu, X, LogOut, Bell, ChevronRight, CalendarClock
+} from "lucide-react";
+
+const navGroups = [
+  {
+    label: "Fleet",
+    items: [
+      { label: "Dashboard",    path: "/dashboard",           icon: LayoutDashboard },
+      { label: "Vehicles",     path: "/vehicles",            icon: Car },
+      { label: "Maintenance",  path: "/maintenance-records", icon: Wrench },
+      { label: "Upcoming",     path: "/upcoming-services",   icon: CalendarClock },
+      { label: "Service Centers",path: "/service-centers",  icon: MapPin },
+    ],
+  },
+  {
+    label: "Finances",
+    items: [
+      { label: "Expense Reports",   path: "/expense-reports",      icon: ReceiptText },
+      { label: "Fuel Log",          path: "/fuel-consumption",     icon: Fuel },
+      { label: "Performance",       path: "/performance-analytics",icon: GaugeCircle },
+    ],
+  },
+  {
+    label: "Support",
+    items: [
+      { label: "Report Issue",  path: "/report-complaint", icon: AlertCircle },
+      { label: "Complaints",    path: "/complaint-history", icon: AlertCircle },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { label: "Profile",   path: "/profile",  icon: User },
+      { label: "Settings",  path: "/settings", icon: Settings },
+    ],
+  },
+];
+
+const NavItem = ({ item, isActive, onClick }) => {
+  const Icon = item.icon;
+  return (
+    <Link
+      to={item.path}
+      onClick={onClick}
+      className="relative block"
+    >
+      {isActive && (
+        <motion.div
+          layoutId="sidebar-active"
+          className="absolute inset-0 bg-indigo-500/15 border border-indigo-500/25 rounded-xl"
+          transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+        />
+      )}
+      <div className={`
+        relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold
+        transition-colors duration-200 z-10
+        ${isActive
+          ? "text-indigo-300"
+          : "text-slate-500 hover:text-slate-200 hover:bg-white/4"
+        }
+      `}>
+        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-indigo-400" : "text-slate-600"}`} />
+        {item.label}
+      </div>
+    </Link>
+  );
+};
+
+const DashboardLayout = ({ children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
+
+  const pageTitle = (() => {
+    for (const g of navGroups) {
+      for (const item of g.items) {
+        if (location.pathname === item.path || location.pathname.startsWith(item.path + "/")) {
+          return item.label;
+        }
+      }
+    }
+    return "Dashboard";
+  })();
+
+  return (
+    <div className="min-h-screen bg-[#080C14] text-slate-100 flex relative overflow-hidden font-sans">
+
+      {/* Ambient glows */}
+      <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-indigo-600/6 rounded-full blur-[140px] pointer-events-none -translate-y-1/4 translate-x-1/4" />
+      <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-emerald-600/4 rounded-full blur-[120px] pointer-events-none translate-y-1/4 -translate-x-1/4" />
+
+      {/* ── Desktop Sidebar ── */}
+      <aside className="hidden lg:flex flex-col w-[240px] flex-shrink-0 border-r border-white/5 z-30 h-screen sticky top-0 bg-[#0A0F1C]/80 backdrop-blur-xl">
+        
+        {/* Brand */}
+        <div className="p-5 border-b border-white/5">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center border border-indigo-500/25 group-hover:border-indigo-500/40 transition-all duration-200 shadow-[0_0_15px_rgba(99,102,241,0.15)] bg-[#0B0F19]">
+              <img src="/autoflow_logo.png" alt="AutoFlow Logo" className="w-full h-full object-cover scale-[1.15]" />
+            </div>
+            <span className="text-base font-bold text-white tracking-tight">
+              Auto<span className="text-indigo-400">Flow</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* Nav Groups */}
+        <nav className="flex-grow overflow-y-auto custom-scrollbar py-4 px-3 space-y-5">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-600 px-3.5 mb-2">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavItem key={item.path} item={item} isActive={isActive(item.path)} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Bottom sign out */}
+        <div className="p-3 border-t border-white/5">
+          <Link
+            to="/login"
+            className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-400/80 hover:text-rose-400 hover:bg-rose-500/8 transition-all duration-200"
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            Sign Out
+          </Link>
+        </div>
+      </aside>
+
+      {/* ── Mobile Overlay & Drawer ── */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", bounce: 0, duration: 0.38 }}
+              className="fixed inset-y-0 left-0 w-[240px] z-50 lg:hidden flex flex-col bg-[#0A0F1C] border-r border-white/5"
+            >
+              <div className="p-5 border-b border-white/5 flex justify-between items-center">
+                <Link to="/" className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md overflow-hidden flex items-center justify-center border border-indigo-500/25 bg-[#0B0F19]">
+                    <img src="/autoflow_logo.png" alt="AutoFlow Logo" className="w-full h-full object-cover scale-[1.15]" />
+                  </div>
+                  <span className="font-bold text-white">Auto<span className="text-indigo-400">Flow</span></span>
+                </Link>
+                <button onClick={() => setIsSidebarOpen(false)} className="p-1.5 rounded-lg bg-white/5 text-slate-400">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <nav className="flex-grow overflow-y-auto custom-scrollbar py-4 px-3 space-y-5">
+                {navGroups.map((group) => (
+                  <div key={group.label}>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-600 px-3.5 mb-2">
+                      {group.label}
+                    </p>
+                    <div className="space-y-0.5">
+                      {group.items.map((item) => (
+                        <NavItem
+                          key={item.path}
+                          item={item}
+                          isActive={isActive(item.path)}
+                          onClick={() => setIsSidebarOpen(false)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </nav>
+
+              <div className="p-3 border-t border-white/5">
+                <Link
+                  to="/login"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-400/80 hover:text-rose-400 hover:bg-rose-500/8 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Link>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Main Content ── */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+
+        {/* Top Bar */}
+        <header className="sticky top-0 z-20 bg-[#080C14]/80 backdrop-blur-xl border-b border-white/5">
+          <div className="px-4 lg:px-6 py-3.5 flex items-center justify-between gap-4">
+            
+            {/* Mobile menu btn + breadcrumb */}
+            <div className="flex items-center gap-3">
+              <button
+                className="lg:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <span className="text-slate-600 hidden sm:inline">AutoFlow</span>
+                <ChevronRight className="w-3 h-3 hidden sm:inline" />
+                <span className="font-semibold text-slate-200">{pageTitle}</span>
+              </div>
+            </div>
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2">
+              <Link
+                to="/notifications"
+                className="p-2 rounded-lg bg-white/4 hover:bg-white/8 text-slate-400 hover:text-white transition-all border border-white/5 hover:border-white/10 relative"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+              </Link>
+              <Link to="/profile" className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/4 hover:bg-white/8 border border-white/5 hover:border-white/10 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-[10px] font-bold">
+                  JD
+                </div>
+                <span className="hidden sm:inline text-xs font-semibold text-slate-300">John D.</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 custom-scrollbar">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            {children}
+          </motion.div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;

@@ -1,25 +1,107 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Car } from "lucide-react";
+import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
 
+const dashboardRoutes = [
+  "/dashboard", "/vehicles", "/vehicle/",
+  "/maintenance-records", "/upcoming-services",
+  "/service-centers", "/expense-reports",
+  "/fuel-consumption", "/performance-analytics",
+  "/report-complaint", "/complaint-history",
+  "/profile", "/settings", "/notifications", "/add-vehicle",
+];
 
+export default function Footer() {
+  const location = useLocation();
 
-const Footer = () => {
+  const isDashboardRoute = dashboardRoutes.some(r =>
+    location.pathname === r || location.pathname.startsWith(r)
+  );
+  if (isDashboardRoute) return null;
+
   return (
-    <footer className="relative bottom-0 bg-gray-900 text-white text-center py-6 w-full mt-auto">
-      <h2 className="text-3xl font-semibold font-serif">Vehicle Maintenance Tracker</h2>
-      <p className="font-serif text-lg">© 2025 All rights reserved.</p>
-      <div className="mt-4 flex justify-center space-x-6 font-mono text-xl underline">
-      <Link to="/settings" className="nav-link">Settings</Link>
-      <Link to="/report-complaint" className="nav-link">Report</Link>
-      <Link to="/about" className="nav-link">About</Link>
-      </div>
-      <div className="mt-4 flex justify-center space-x-4 text-2xl">
-        <Link to="https://www.facebook.com/" className="nav-link"><i className="fab fa-facebook"></i></Link>
-        <Link to="https://x.com/?lang=en" className="nav-link"><i className="fab fa-twitter"></i></Link>
-        <Link to="https://in.linkedin.com/" className="nav-link"><i className="fab fa-linkedin"></i></Link>
+    <footer className="border-t border-white/5 bg-[#080C14] relative overflow-hidden">
+      {/* Subtle gradient top border */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-10">
+
+          {/* Brand */}
+          <div className="max-w-xs">
+            <Link to="/" className="flex items-center gap-2.5 mb-3">
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center border border-indigo-500/25 bg-[#0B0F19] shadow-[0_0_15px_rgba(99,102,241,0.15)]">
+                <img src="/autoflow_logo.png" alt="AutoFlow Logo" className="w-full h-full object-cover scale-[1.15]" />
+              </div>
+              <span className="text-base font-bold text-white">
+                Auto<span className="text-indigo-400">Flow</span>
+              </span>
+            </Link>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Keep your fleet running smoothly. Maintenance tracking, fuel logs, and expense reports — all in one place.
+            </p>
+            <div className="flex items-center gap-3 mt-5">
+              {[
+                { Icon: FaGithub, href: "#" },
+                { Icon: FaTwitter, href: "#" },
+                { Icon: FaLinkedin, href: "#" },
+              ].map(({ Icon, href }, i) => (
+                <a
+                  key={i}
+                  href={href}
+                  className="p-2 rounded-lg bg-white/4 hover:bg-white/8 border border-white/5 hover:border-white/12 text-slate-500 hover:text-slate-300 transition-all"
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Links */}
+          <div className="flex gap-16">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-4">Product</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Home",      path: "/" },
+                  { label: "About",     path: "/about" },
+                  { label: "Sign Up",   path: "/signup" },
+                  { label: "Dashboard", path: "/dashboard" },
+                ].map((l) => (
+                  <li key={l.path}>
+                    <Link to={l.path} className="text-sm text-slate-500 hover:text-slate-200 transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-4">Legal</p>
+              <ul className="space-y-2.5">
+                {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((l) => (
+                  <li key={l}>
+                    <span className="text-sm text-slate-500 hover:text-slate-200 transition-colors cursor-pointer">
+                      {l}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-slate-600">
+            © {new Date().getFullYear()} AutoFlow. All rights reserved.
+          </p>
+          <p className="text-xs text-slate-700">
+            Built with precision. Maintained with love.
+          </p>
+        </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}
