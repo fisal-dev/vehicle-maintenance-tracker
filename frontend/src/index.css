@@ -1,0 +1,170 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login{
+    height: 100vh;
+    background-image: url("./images/login.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.sign-up{
+    background-image: url("./images/signup.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.forgot{
+    background-image: url("./images/forgot.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.glass{
+    height:57vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.glass1{
+    height:55vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(13px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.glass2{
+    height:60vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.glass3{
+    height:76vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.glass4{
+    height:60vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.glass5{
+    height:57vh;
+background: rgba(255, 252, 252, 0.47);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(6.4px);
+border: 1px solid rgba(0, 0, 0, 0.51);
+}
+
+.background{
+    background-color:rgb(124, 126, 126);
+}
+
+.design{
+    
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.backgroundhome{
+
+    
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.navbar{
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.maintenance {
+    background-image: url("./images/maintenance.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about{
+        background-image: url("./images/about.jpg");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+}
+
+.addvehicle{
+    background-image: url("./images/addvehicle.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile{
+        background-image: url("./images/profile.jpg");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+}
+
+.report{
+    background-image: url("./images/report.jpeg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
