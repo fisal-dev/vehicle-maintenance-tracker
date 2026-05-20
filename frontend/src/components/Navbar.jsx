@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Car, Menu, X, ChevronRight } from "lucide-react";
+import { api } from "../utils/api";
 
 const navLinks = [
   { label: "Home",  path: "/" },
@@ -40,7 +41,14 @@ export default function Navbar() {
   );
 
   const handleNavbarSignOut = () => {
+    const deviceToken = localStorage.getItem("rememberDeviceToken");
+    if (deviceToken) {
+      api.post("/user/logout-device", { deviceToken }).catch(() => {});
+    }
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("rememberDeviceToken");
     window.location.reload();
   };
 

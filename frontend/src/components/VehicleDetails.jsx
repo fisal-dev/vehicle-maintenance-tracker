@@ -1,39 +1,82 @@
-import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Car, Wrench, Fuel, DollarSign, ArrowLeft, CalendarClock, Settings2, ReceiptText, MapPin, GaugeCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Car, Wrench, Fuel, DollarSign, ArrowLeft, CalendarClock, Settings2, ReceiptText, MapPin, GaugeCircle, Trash2 } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Badge from "./ui/Badge";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const VehicleDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Mockup data
-  const vehicle = {
-    id: id || "1",
-    make: "Tata",
-    model: "Nexon",
-    year: 2022,
-    vin: "MAT543210NJ123456",
-    registration: "MH-12-AB-1234",
-    status: "active",
-    mileage: "25,230 km",
-    serviceHistory: [
-      { date: "Jan 10, 2024", description: "Synthetic Oil Change", cost: "₹7,100.00", status: "success" },
-      { date: "Dec 05, 2023", description: "Wheel Alignment & Balancing", cost: "₹3,700.00", status: "success" },
-    ],
-    upcomingMaintenance: [
-      { date: "Mar 15, 2024", description: "Brake Pad Inspection", urgency: "warning" },
-      { date: "Jun 10, 2024", description: "Cabin Air Filter", urgency: "neutral" },
-    ],
-    fuelLog: [
-      { date: "Feb 01, 2024", liters: "45.0 L", cost: "₹4,250.00", mpg: "16.2" },
-      { date: "Jan 15, 2024", liters: "40.0 L", cost: "₹3,800.00", mpg: "15.8" },
-    ],
-    totalCost: "₹1,02,450.00"
+  const [vehicle, setVehicle] = useState(null);
+  const [serviceHistory, setServiceHistory] = useState([]);
+  const [upcomingMaintenance, setUpcomingMaintenance] = useState([]);
+  const [fuelLog, setFuelLog] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      api.get(`/vehicles/${id}`),
+      api.get("/maintenance"),
+      api.get("/upcoming"),
+      api.get("/fuel")
+    ]).then(([vehRes, maintRes, upcomingRes, fuelRes]) => {
+      setVehicle(vehRes);
+      // Filter by vehicle ID
+      setServiceHistory(maintRes.filter(m => m.vehicleId && (m.vehicleId._id === id || m.vehicleId === id)));
+      setUpcomingMaintenance(upcomingRes.filter(u => u.vehicleId && (u.vehicleId._id === id || u.vehicleId === id)));
+      setFuelLog(fuelRes.filter(f => f.vehicleId && (f.vehicleId._id === id || f.vehicleId === id)));
+    }).catch(err => {
+      console.error("Error loading vehicle details:", err);
+    }).finally(() => {
+      setLoading(false);
+    });
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to remove this vehicle from your fleet?")) {
+      try {
+        await api.delete(`/vehicles/${id}`);
+        alert("Vehicle successfully removed.");
+        navigate("/vehicles");
+      } catch (err) {
+        alert(err.message || "Failed to delete vehicle.");
+      }
+    }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <DashboardLayout>
+        <div className="page-wrapper text-center py-20">
+          <h2 className="text-xl font-bold text-rose-400 mb-2">Vehicle Not Found</h2>
+          <p className="text-slate-400 text-sm mb-6">The requested vehicle record could not be retrieved.</p>
+          <Link to="/vehicles">
+            <Button variant="secondary" icon={ArrowLeft}>Back to Fleet</Button>
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const totalMaintCost = serviceHistory.reduce((sum, item) => sum + (item.cost || 0), 0);
+  const totalFuelCost = fuelLog.reduce((sum, item) => sum + (item.cost || 0), 0);
+  const totalSpent = totalMaintCost + totalFuelCost;
 
   return (
     <DashboardLayout>
@@ -62,7 +105,7 @@ const VehicleDetails = () => {
             </div>
           </div>
           <div className="flex gap-2">
-             <Button variant="secondary" icon={Settings2}>Configure</Button>
+             <Button variant="danger" icon={Trash2} onClick={handleDelete}>Delete</Button>
              <Link to="/maintenance-records">
                 <Button variant="primary" icon={Wrench}>Log Service</Button>
              </Link>
@@ -110,7 +153,7 @@ const VehicleDetails = () => {
                   { label: "VIN", val: <span className="font-mono text-xs">{vehicle.vin}</span> },
                   { label: "License Plate", val: <span className="font-mono bg-white/5 px-2 py-0.5 rounded border border-white/10">{vehicle.registration}</span> },
                   { label: "Current Mileage", val: vehicle.mileage },
-                  { label: "Total Spent", val: <span className="text-emerald-400 font-bold">{vehicle.totalCost}</span> },
+                  { label: "Total Spent", val: <span className="text-emerald-400 font-bold">₹{totalSpent.toLocaleString()}</span> },
                 ].map((row, i) => (
                   <div key={i} className="flex justify-between py-3 border-b border-white/5 last:border-0">
                     <span className="text-slate-500 font-medium">{row.label}</span>
@@ -131,20 +174,24 @@ const VehicleDetails = () => {
                   </h2>
                 </div>
                 <div className="space-y-3">
-                  {vehicle.upcomingMaintenance.map((m, i) => (
-                    <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-4 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg bg-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/10 border border-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/20 text-${m.urgency === 'warning' ? 'amber' : 'slate'}-400`}>
-                          <CalendarClock className="w-4 h-4" />
+                  {upcomingMaintenance.length === 0 ? (
+                    <p className="text-slate-500 text-sm py-4">No upcoming tasks scheduled.</p>
+                  ) : (
+                    upcomingMaintenance.slice(0, 3).map((m, i) => (
+                      <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-4 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg bg-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/10 border border-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/20 text-${m.urgency === 'warning' ? 'amber' : 'slate'}-400`}>
+                            <CalendarClock className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-foreground">{m.description}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">Due: {new Date(m.date).toLocaleDateString()}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">{m.description}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">Due: {m.date}</p>
-                        </div>
+                        <Badge variant={m.urgency}>{m.urgency === 'warning' ? 'Urgent' : 'Scheduled'}</Badge>
                       </div>
-                      <Badge variant={m.urgency}>{m.urgency === 'warning' ? 'Urgent' : 'Scheduled'}</Badge>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </Card>
 
@@ -156,24 +203,28 @@ const VehicleDetails = () => {
                   </h2>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="premium-table">
-                    <thead>
-                      <tr>
-                        <th className="pl-6">Service</th>
-                        <th>Date</th>
-                        <th className="pr-6 text-right">Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {vehicle.serviceHistory.map((s, i) => (
-                        <tr key={i}>
-                          <td className="pl-6 font-bold text-foreground">{s.description}</td>
-                          <td className="text-slate-400">{s.date}</td>
-                          <td className="pr-6 text-right font-bold text-slate-300">{s.cost}</td>
+                  {serviceHistory.length === 0 ? (
+                    <p className="text-slate-500 text-sm p-6">No service history records logged yet.</p>
+                  ) : (
+                    <table className="premium-table">
+                      <thead>
+                        <tr>
+                          <th className="pl-6">Service</th>
+                          <th>Date</th>
+                          <th className="pr-6 text-right">Cost</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {serviceHistory.slice(0, 3).map((s, i) => (
+                          <tr key={i}>
+                            <td className="pl-6 font-bold text-foreground">{s.service}</td>
+                            <td className="text-slate-400">{new Date(s.date).toLocaleDateString()}</td>
+                            <td className="pr-6 text-right font-bold text-emerald-400">₹{s.cost.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </Card>
 
@@ -189,22 +240,26 @@ const VehicleDetails = () => {
               <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
                 <CalendarClock className="text-amber-400 w-5 h-5" /> Upcoming Maintenance Tasks
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {vehicle.upcomingMaintenance.map((m, i) => (
-                  <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-4 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg bg-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/10 border border-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/20 text-${m.urgency === 'warning' ? 'amber' : 'slate'}-400`}>
-                        <CalendarClock className="w-4 h-4" />
+              {upcomingMaintenance.length === 0 ? (
+                <p className="text-slate-500 text-sm py-4">No upcoming tasks scheduled.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {upcomingMaintenance.map((m, i) => (
+                    <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-4 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/10 border border-${m.urgency === 'warning' ? 'amber' : 'slate'}-500/20 text-${m.urgency === 'warning' ? 'amber' : 'slate'}-400`}>
+                          <CalendarClock className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{m.description}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">Due: {new Date(m.date).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">{m.description}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">Due: {m.date}</p>
-                      </div>
+                      <Badge variant={m.urgency}>{m.urgency === 'warning' ? 'Urgent' : 'Scheduled'}</Badge>
                     </div>
-                    <Badge variant={m.urgency}>{m.urgency === 'warning' ? 'Urgent' : 'Scheduled'}</Badge>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </Card>
 
             {/* Complete Service History */}
@@ -218,28 +273,32 @@ const VehicleDetails = () => {
                 </Link>
               </div>
               <div className="overflow-x-auto">
-                <table className="premium-table">
-                  <thead>
-                    <tr>
-                      <th className="pl-6">Service</th>
-                      <th>Date</th>
-                      <th>Status</th>
-                      <th className="pr-6 text-right">Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vehicle.serviceHistory.map((s, i) => (
-                      <tr key={i}>
-                        <td className="pl-6 font-bold text-foreground">{s.description}</td>
-                        <td className="text-slate-400">{s.date}</td>
-                        <td>
-                          <Badge variant={s.status}>Completed</Badge>
-                        </td>
-                        <td className="pr-6 text-right font-bold text-slate-300">{s.cost}</td>
+                {serviceHistory.length === 0 ? (
+                  <p className="text-slate-500 text-sm p-6">No service history records logged yet.</p>
+                ) : (
+                  <table className="premium-table">
+                    <thead>
+                      <tr>
+                        <th className="pl-6">Service</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th className="pr-6 text-right">Cost</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {serviceHistory.map((s, i) => (
+                        <tr key={i}>
+                          <td className="pl-6 font-bold text-foreground">{s.service}</td>
+                          <td className="text-slate-400">{new Date(s.date).toLocaleDateString()}</td>
+                          <td>
+                            <Badge variant={s.status || 'success'}>{s.label || 'Completed'}</Badge>
+                          </td>
+                          <td className="pr-6 text-right font-bold text-emerald-400">₹{s.cost.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </Card>
           </div>
@@ -258,26 +317,30 @@ const VehicleDetails = () => {
                 </Link>
               </div>
               <div className="overflow-x-auto">
-                <table className="premium-table">
-                  <thead>
-                    <tr>
-                      <th className="pl-6">Refuel Date</th>
-                      <th>Fuel Volume</th>
-                      <th>Total Cost</th>
-                      <th className="pr-6">Fuel Efficiency</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {vehicle.fuelLog.map((log, i) => (
-                      <tr key={i}>
-                        <td className="pl-6 text-slate-400">{log.date}</td>
-                        <td className="font-semibold text-slate-300">{log.liters}</td>
-                        <td className="font-bold text-slate-300">{log.cost}</td>
-                        <td className="pr-6 font-mono text-indigo-400">{log.mpg} km/l</td>
+                {fuelLog.length === 0 ? (
+                  <p className="text-slate-500 text-sm p-6">No fuel logs logged yet.</p>
+                ) : (
+                  <table className="premium-table">
+                    <thead>
+                      <tr>
+                        <th className="pl-6">Refuel Date</th>
+                        <th>Fuel Volume</th>
+                        <th>Total Cost</th>
+                        <th className="pr-6">Odometer Mileage</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {fuelLog.map((log, i) => (
+                        <tr key={i}>
+                          <td className="pl-6 text-slate-400">{new Date(log.date).toLocaleDateString()}</td>
+                          <td className="font-semibold text-slate-300">{log.liters} L</td>
+                          <td className="font-bold text-emerald-400">₹{log.cost.toLocaleString()}</td>
+                          <td className="pr-6 font-mono text-indigo-400">{log.mileage.toLocaleString()} km</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </Card>
           </div>

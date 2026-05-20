@@ -1,46 +1,88 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { api } from "../utils/api";
 import {
   LayoutDashboard, Car, Wrench, MapPin, ReceiptText,
   Fuel, GaugeCircle, AlertCircle, User, Settings,
-  Menu, X, LogOut, Bell, ChevronRight, CalendarClock
+  Menu, X, LogOut, Bell, ChevronRight, CalendarClock, Users
 } from "lucide-react";
 
-const navGroups = [
-  {
-    label: "Fleet",
-    items: [
-      { label: "Dashboard",    path: "/dashboard",           icon: LayoutDashboard },
-      { label: "Vehicles",     path: "/vehicles",            icon: Car },
-      { label: "Maintenance",  path: "/maintenance-records", icon: Wrench },
-      { label: "Upcoming",     path: "/upcoming-services",   icon: CalendarClock },
-      { label: "Service Centers",path: "/service-centers",  icon: MapPin },
-    ],
-  },
-  {
-    label: "Finances",
-    items: [
-      { label: "Expense Reports",   path: "/expense-reports",      icon: ReceiptText },
-      { label: "Fuel Log",          path: "/fuel-consumption",     icon: Fuel },
-      { label: "Performance",       path: "/performance-analytics",icon: GaugeCircle },
-    ],
-  },
-  {
-    label: "Support",
-    items: [
-      { label: "Report Issue",  path: "/report-complaint", icon: AlertCircle },
-      { label: "Complaints",    path: "/complaint-history", icon: AlertCircle },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { label: "Profile",   path: "/profile",  icon: User },
-      { label: "Settings",  path: "/settings", icon: Settings },
-    ],
-  },
-];
+const getNavGroups = (role) => {
+  if (role === 'owner') {
+    return [
+      {
+        label: "Business",
+        items: [
+          { label: "Dashboard",    path: "/dashboard",           icon: LayoutDashboard },
+          { label: "Garage Console",path: "/garage-console",      icon: Car },
+          { label: "Team Portal",   path: "/team-management",     icon: Users },
+          { label: "Service Centers",path: "/service-centers",    icon: MapPin },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "Profile",   path: "/profile",  icon: User },
+          { label: "Settings",  path: "/settings", icon: Settings },
+        ],
+      },
+    ];
+  } else if (role === 'manager') {
+    return [
+      {
+        label: "Business",
+        items: [
+          { label: "Dashboard",    path: "/dashboard",           icon: LayoutDashboard },
+          { label: "Garage Console",path: "/garage-console",      icon: Car },
+          { label: "Service Centers",path: "/service-centers",    icon: MapPin },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "Profile",   path: "/profile",  icon: User },
+          { label: "Settings",  path: "/settings", icon: Settings },
+        ],
+      },
+    ];
+  } else {
+    return [
+      {
+        label: "Fleet",
+        items: [
+          { label: "Dashboard",    path: "/dashboard",           icon: LayoutDashboard },
+          { label: "Vehicles",     path: "/vehicles",            icon: Car },
+          { label: "Maintenance",  path: "/maintenance-records", icon: Wrench },
+          { label: "Upcoming",     path: "/upcoming-services",   icon: CalendarClock },
+          { label: "Service Centers",path: "/service-centers",    icon: MapPin },
+        ],
+      },
+      {
+        label: "Finances",
+        items: [
+          { label: "Expense Reports",   path: "/expense-reports",      icon: ReceiptText },
+          { label: "Fuel Log",          path: "/fuel-consumption",     icon: Fuel },
+          { label: "Performance",       path: "/performance-analytics",icon: GaugeCircle },
+        ],
+      },
+      {
+        label: "Support",
+        items: [
+          { label: "Report Issue",  path: "/report-complaint", icon: AlertCircle },
+          { label: "Complaints",    path: "/complaint-history", icon: AlertCircle },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "Profile",   path: "/profile",  icon: User },
+          { label: "Settings",  path: "/settings", icon: Settings },
+        ],
+      },
+    ];
+  }
+};
 
 const NavItem = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
@@ -75,11 +117,31 @@ const NavItem = ({ item, isActive, onClick }) => {
 const DashboardLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = user.role || 'customer';
+  const name = user.name || 'User';
+  
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "U";
+
+  const navGroups = getNavGroups(role);
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
 
   const handleSignOut = () => {
+    const deviceToken = localStorage.getItem("rememberDeviceToken");
+    if (deviceToken) {
+      api.post("/user/logout-device", { deviceToken }).catch(() => {});
+    }
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("rememberDeviceToken");
   };
 
   const pageTitle = (() => {
@@ -245,9 +307,9 @@ const DashboardLayout = ({ children }) => {
               </Link>
               <Link to="/profile" className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-indigo-500/5 hover:bg-indigo-500/10 border border-indigo-500/10 hover:border-indigo-500/20 transition-all">
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
-                  JD
+                  {initials}
                 </div>
-                <span className="hidden sm:inline text-xs font-semibold text-slate-300">John D.</span>
+                <span className="hidden sm:inline text-xs font-semibold text-slate-300">{name}</span>
               </Link>
             </div>
           </div>

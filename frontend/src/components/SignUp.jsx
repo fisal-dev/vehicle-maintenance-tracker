@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, ShieldCheck, Car, Check } from "lucide-react";
+import { Mail, Lock, ArrowRight, ShieldCheck, Car, Check, Eye, EyeOff } from "lucide-react";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -10,9 +11,11 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
     if (!email || !password || !confirmPassword) {
@@ -28,11 +31,14 @@ const SignUp = () => {
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
+    try {
+      await api.post("/user/register", { email, password });
+      navigate("/login", { state: { successMessage: "Account created successfully! Please sign in." } });
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+    } finally {
       setLoading(false);
-      alert("Account created successfully!");
-      navigate("/login");
-    }, 1500);
+    }
   };
 
   // Simple password strength calculator
@@ -133,13 +139,20 @@ const SignUp = () => {
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-11 h-12 bg-white/5"
+                    className="input-field pl-11 pr-10 h-12 bg-white/5"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
                 {password && (
                   <div className="w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden">
@@ -155,20 +168,27 @@ const SignUp = () => {
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="input-field pl-11 h-12 bg-white/5"
+                    className="input-field pl-11 pr-10 h-12 bg-white/5"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
               <label className="flex items-start gap-3 cursor-pointer group mt-4">
                 <input type="checkbox" required className="w-4 h-4 mt-0.5 rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500/50 focus:ring-offset-0" />
                 <span className="text-xs font-medium text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">
-                  I agree to the <span className="text-indigo-400">Terms of Service</span> and <span className="text-indigo-400">Privacy Policy</span>.
+                  I agree to the <Link to="/terms-of-service" onClick={(e) => e.stopPropagation()} className="text-indigo-400 hover:text-indigo-300 transition-colors">Terms of Service</Link> and <Link to="/privacy-policy" onClick={(e) => e.stopPropagation()} className="text-indigo-400 hover:text-indigo-300 transition-colors">Privacy Policy</Link>.
                 </span>
               </label>
 

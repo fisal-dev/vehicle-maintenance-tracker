@@ -1,29 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Mail, Phone, CheckCircle2, ShieldCheck, Camera } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const UserProfile = () => {
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "johndoe@gmail.com",
-    phone: "9854671230",
+    name: "",
+    email: "",
+    phone: "",
     notifications: true,
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    api.get("/user/profile")
+      .then(res => {
+        setProfile({
+          name: res.name || "",
+          email: res.email || "",
+          phone: res.phone || "",
+          notifications: res.notifications !== undefined ? res.notifications : true,
+        });
+      })
+      .catch(err => console.error("Error fetching profile:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setSuccess(false);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const updated = await api.put("/user/profile", profile);
+      setProfile({
+        name: updated.name || "",
+        email: updated.email || "",
+        phone: updated.phone || "",
+        notifications: updated.notifications !== undefined ? updated.notifications : true,
+      });
+      // Update cached user info
+      const cached = JSON.parse(localStorage.getItem("user") || "{}");
+      localStorage.setItem("user", JSON.stringify({ ...cached, name: updated.name, email: updated.email }));
       setSuccess(true);
-    }, 1200);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -146,7 +175,7 @@ const UserProfile = () => {
 
             {/* Action button */}
             <div className="pt-4 border-t border-white/5">
-              <Button type="submit" variant="primary" className="w-full" size="lg" isLoading={loading}>
+              <Button type="submit" variant="primary" className="w-full" size="lg" isLoading={saving}>
                 Save Profile Changes
               </Button>
             </div>

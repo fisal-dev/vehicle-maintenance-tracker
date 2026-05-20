@@ -1,6 +1,7 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "../hooks/useTheme";
+import { api } from "../utils/api";
 
 // Component Imports
 import Home from "../components/Home";
@@ -28,11 +29,60 @@ import About from "../components/About";
 import PrivacyPolicy from "../components/PrivacyPolicy";
 import TermsOfService from "../components/TermsOfService";
 import CookiePolicy from "../components/CookiePolicy";
+import ManagerManagement from "../components/ManagerManagement";
+import GarageConsole from "../components/GarageConsole";
 
 // Fallback Page
 import NotFound from "./NotFound";
 
 const IndexPage = () => {
+  const [checkingSession, setCheckingSession] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const autoLogin = async () => {
+      const deviceToken = localStorage.getItem("rememberDeviceToken");
+      const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+      // Only attempt auto-login if they have a deviceToken but are not actively flagged as logged in
+      if (deviceToken && !isLoggedIn) {
+        setCheckingSession(true);
+        try {
+          const res = await api.post("/user/verify-device", { deviceToken });
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("token", res.token);
+          localStorage.setItem("user", JSON.stringify(res.user));
+          
+          // Send to dashboard if loading home/login/signup, otherwise keep current path
+          if (location.pathname === "/" || location.pathname === "/login" || location.pathname === "/signup") {
+            navigate("/dashboard");
+          } else {
+            window.location.reload();
+          }
+        } catch (err) {
+          console.warn("Auto-login via remembered device failed:", err.message);
+          localStorage.removeItem("rememberDeviceToken");
+        } finally {
+          setCheckingSession(false);
+        }
+      }
+    };
+    
+    autoLogin();
+  }, []); // Run once on application mount
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-400 text-sm font-semibold animate-pulse">Recognizing your device...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-background text-foreground flex flex-col font-sans transition-colors duration-300">
@@ -47,6 +97,8 @@ const IndexPage = () => {
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/team-management" element={<ManagerManagement />} />
+            <Route path="/garage-console" element={<GarageConsole />} />
 
             <Route path="/vehicles" element={<VehicleList />} />
             <Route path="/vehicle/:id" element={<VehicleDetails />} />

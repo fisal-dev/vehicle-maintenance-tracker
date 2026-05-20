@@ -1,20 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle, Car, Wrench, CalendarClock, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const Report = () => {
+  const [vehicles, setVehicles] = useState([]);
   const [complaint, setComplaint] = useState({
-    vehicle: "",
-    issue: "",
-    date: "",
+    vehicleId: "",
+    description: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [fetchingVehicles, setFetchingVehicles] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        setFetchingVehicles(true);
+        const data = await api.get("/vehicles");
+        setVehicles(data);
+        if (data.length > 0) {
+          setComplaint(prev => ({ ...prev, vehicleId: data[0]._id }));
+        }
+      } catch (err) {
+        console.error("Error loading vehicles for complaints:", err);
+      } finally {
+        setFetchingVehicles(false);
+      }
+    };
+    fetchVehicles();
+  }, []);
 
   const handleChange = (e) => {
     setComplaint({
@@ -23,18 +43,26 @@ const Report = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setSuccess(false);
+    if (!complaint.vehicleId || !complaint.description) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-    setTimeout(() => {
+    try {
+      setLoading(true);
+      setSuccess(false);
+      await api.post("/complaints", complaint);
       setLoading(false);
       setSuccess(true);
       setTimeout(() => {
         navigate("/complaint-history");
       }, 1500);
-    }, 1500);
+    } catch (err) {
+      setLoading(false);
+      alert(err.message || "Failed to log complaint ticket.");
+    }
   };
 
   return (
@@ -76,22 +104,29 @@ const Report = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
               
-              {/* Vehicle input */}
+              {/* Vehicle input select */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Vehicle</label>
                 <div className="relative group">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 group-focus-within:text-rose-400 transition-colors">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 group-focus-within:text-rose-400 transition-colors pointer-events-none">
                     <Car className="w-4 h-4" />
                   </span>
-                  <input
-                    type="text"
-                    name="vehicle"
-                    value={complaint.vehicle}
+                  <select
+                    name="vehicleId"
+                    value={complaint.vehicleId}
                     onChange={handleChange}
-                    className="input-field pl-10 focus:border-rose-500/60 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.12)]"
-                    placeholder="e.g. Tata Nexon"
+                    className="input-field pl-10 focus:border-rose-500/60 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.12)] cursor-pointer"
+                    disabled={fetchingVehicles}
                     required
-                  />
+                  >
+                    {fetchingVehicles && <option value="">Loading vehicles...</option>}
+                    {vehicles.length === 0 && !fetchingVehicles && <option value="">No active vehicles found</option>}
+                    {vehicles.map(v => (
+                      <option key={v._id} value={v._id}>
+                        {v.make} {v.model} ({v.registration})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -99,12 +134,12 @@ const Report = () => {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Issue Description</label>
                 <div className="relative group">
-                  <span className="absolute top-3 left-0 pl-3.5 flex items-center text-slate-500 group-focus-within:text-rose-400 transition-colors">
+                  <span className="absolute top-3 left-0 pl-3.5 flex items-center text-slate-500 group-focus-within:text-rose-400 transition-colors pointer-events-none">
                     <Wrench className="w-4 h-4" />
                   </span>
                   <textarea
-                    name="issue"
-                    value={complaint.issue}
+                    name="description"
+                    value={complaint.description}
                     onChange={handleChange}
                     className="input-field pl-10 min-h-[120px] py-3 focus:border-rose-500/60 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.12)] resize-y"
                     placeholder="Describe the problem (e.g. Engine overheating, unusual brake noise)..."
@@ -113,27 +148,9 @@ const Report = () => {
                 </div>
               </div>
 
-              {/* Date input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Discovery Date</label>
-                <div className="relative group">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 group-focus-within:text-rose-400 transition-colors">
-                    <CalendarClock className="w-4 h-4" />
-                  </span>
-                  <input
-                    type="date"
-                    name="date"
-                    value={complaint.date}
-                    onChange={handleChange}
-                    className="input-field pl-10 focus:border-rose-500/60 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.12)]"
-                    required
-                  />
-                </div>
-              </div>
-
               {/* Action button */}
               <div className="pt-4 border-t border-white/5">
-                 <Button type="submit" variant="danger" className="w-full" size="lg" isLoading={loading}>
+                 <Button type="submit" variant="danger" className="w-full" size="lg" isLoading={loading} disabled={fetchingVehicles || vehicles.length === 0}>
                    Submit Complaint Ticket <ArrowRight className="w-4 h-4 ml-1" />
                  </Button>
               </div>

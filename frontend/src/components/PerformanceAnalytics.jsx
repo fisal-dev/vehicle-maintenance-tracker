@@ -1,27 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { GaugeCircle, IndianRupee, Droplet, TrendingUp } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
+import { api } from "../utils/api";
 
 const PerformanceAnalytics = () => {
-  const maintenanceData = [
-    { month: "Jan", cost: 20000 },
-    { month: "Feb", cost: 15000 },
-    { month: "Mar", cost: 30000 },
-    { month: "Apr", cost: 25000 },
-    { month: "May", cost: 40000 },
-    { month: "Jun", cost: 35000 },
-  ];
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const fuelConsumptionData = [
-    { month: "Jan", liters: 50 },
-    { month: "Feb", liters: 45 },
-    { month: "Mar", liters: 55 },
-    { month: "Apr", liters: 60 },
-    { month: "May", liters: 65 },
-    { month: "Jun", liters: 70 },
-  ];
+  useEffect(() => {
+    api.get("/dashboard")
+      .then(res => {
+        setData(res);
+      })
+      .catch(err => console.error("Error loading performance analytics data:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const maintenanceData = data?.chartData || [];
+  const fuelConsumptionData = data?.fuelChartData || [];
 
   const CustomTooltip = ({ active, payload, label, prefix = "", suffix = "" }) => {
     if (active && payload && payload.length) {
@@ -38,6 +36,16 @@ const PerformanceAnalytics = () => {
     }
     return null;
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

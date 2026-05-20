@@ -1,17 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AlertCircle, Plus, CalendarClock, Car, MessageSquareWarning } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Badge from "./ui/Badge";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const ComplaintHistory = () => {
-  const [complaints] = useState([
-    { id: 1, vehicle: "Tata Nexon", complaint: "Engine overheating after 50 km", date: "Feb 10, 2025", status: "danger", label: "Open" },
-    { id: 2, vehicle: "Maruti Suzuki Swift", complaint: "Brake squealing at low speeds", date: "Jan 25, 2025", status: "success", label: "Resolved" },
-    { id: 3, vehicle: "Mahindra Thar", complaint: "Transmission slipping in 3rd gear", date: "Jan 12, 2025", status: "warning", label: "Investigating" },
-  ]);
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        setLoading(true);
+        const data = await api.get("/complaints");
+        setComplaints(data);
+      } catch (err) {
+        console.error("Error loading complaints:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchComplaints();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -38,7 +51,11 @@ const ComplaintHistory = () => {
             </h2>
           </div>
 
-          {complaints.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-24">
+              <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : complaints.length === 0 ? (
             <div className="text-center py-20">
               <AlertCircle className="w-12 h-12 text-slate-600 mx-auto mb-4" />
               <p className="text-slate-400 text-sm">Your fleet is running perfectly without logged exceptions.</p>
@@ -56,26 +73,32 @@ const ComplaintHistory = () => {
                 </thead>
                 <tbody>
                   {complaints.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item._id}>
                       <td className="pl-6">
                         <div className="font-bold text-foreground flex items-center gap-2">
                           <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
                             <Car className="w-3 h-3 text-slate-400" />
                           </div>
-                          {item.vehicle}
+                          {item.vehicleId ? (
+                            <Link to={`/vehicle/${item.vehicleId._id}`} className="hover:text-indigo-400 transition-colors">
+                              {item.vehicleId.make} {item.vehicleId.model}
+                            </Link>
+                          ) : (
+                            <span className="text-slate-400">Unknown Vehicle</span>
+                          )}
                         </div>
                       </td>
-                      <td className="font-semibold text-slate-300 max-w-md truncate" title={item.complaint}>
-                        {item.complaint}
+                      <td className="font-semibold text-slate-300 max-w-md truncate" title={item.description}>
+                        {item.description}
                       </td>
                       <td className="text-slate-400">
                         <span className="flex items-center gap-1.5">
                           <CalendarClock className="w-3.5 h-3.5 text-indigo-400" />
-                          {item.date}
+                          {new Date(item.date).toLocaleDateString()}
                         </span>
                       </td>
                       <td className="pr-6">
-                        <Badge variant={item.status} dot size="sm">{item.label}</Badge>
+                        <Badge variant={item.status || "danger"} dot size="sm">{item.label || "Open"}</Badge>
                       </td>
                     </tr>
                   ))}

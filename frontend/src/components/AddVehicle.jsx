@@ -4,6 +4,7 @@ import { Car, ArrowLeft, ArrowRight, Save, CalendarClock, Hash, ScanBarcode, Ali
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const AddVehicle = () => {
   const [vehicle, setVehicle] = useState({
@@ -15,6 +16,8 @@ const AddVehicle = () => {
   });
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [createdId, setCreatedId] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,13 +27,25 @@ const AddVehicle = () => {
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError("");
+    try {
+      const res = await api.post("/vehicles", {
+        make: vehicle.make,
+        model: vehicle.model,
+        year: Number(vehicle.year),
+        vin: vehicle.vin,
+        registration: vehicle.registrationNumber,
+      });
+      setCreatedId(res._id);
       setStep(3); // Success step
-    }, 1500);
+    } catch (err) {
+      setError(err.message || "Failed to add vehicle. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -180,6 +195,12 @@ const AddVehicle = () => {
                   </div>
                 </div>
 
+                {error && (
+                  <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs font-bold text-rose-400 text-center">
+                    {error}
+                  </div>
+                )}
+
                 <div className="mt-8 flex justify-between">
                   <Button variant="ghost" onClick={handleBack} icon={ArrowLeft} iconPosition="left">
                     Back
@@ -205,7 +226,7 @@ const AddVehicle = () => {
                 <Link to="/vehicles">
                   <Button variant="secondary">Go to Fleet</Button>
                 </Link>
-                <Link to={`/vehicle/1`}>
+                <Link to={`/vehicle/${createdId}`}>
                   <Button variant="primary">View Profile</Button>
                 </Link>
               </div>

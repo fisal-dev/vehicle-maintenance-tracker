@@ -1,23 +1,53 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, ShieldCheck, Car } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Mail, Lock, ArrowRight, ShieldCheck, Car, Eye, EyeOff } from "lucide-react";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const [email, setEmail] = useState(localStorage.getItem("rememberedEmail") || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(location.state?.successMessage || "");
+  const [rememberMe, setRememberMe] = useState(!!localStorage.getItem("rememberedEmail"));
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await api.post("/user/login", { 
+        email, 
+        password,
+        rememberDevice: rememberMe,
+        deviceName: navigator.userAgent || "Web Browser"
+      });
+      
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+        if (res.deviceToken) {
+          localStorage.setItem("rememberDeviceToken", res.deviceToken);
+        }
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberDeviceToken");
+      }
+      
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
       navigate("/dashboard");
-    }, 1200);
+    } catch (err) {
+      setError(err.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,6 +98,18 @@ const LoginPage = () => {
 
           <Card variant="bordered" className="p-8 sm:p-10 bg-surface/80 backdrop-blur-xl">
             <form onSubmit={handleLogin} className="space-y-6">
+              {success && (
+                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-sm font-semibold text-emerald-400 text-center animate-scale-in flex items-center justify-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  {success}
+                </div>
+              )}
+
+              {error && (
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-sm font-semibold text-rose-400 text-center animate-scale-in">
+                  {error}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</label>
@@ -98,18 +140,30 @@ const LoginPage = () => {
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-11 h-12 bg-white/5"
+                    className="input-field pl-11 pr-10 h-12 bg-white/5"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer group mt-2">
-                <input type="checkbox" className="w-4 h-4 rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500/50 focus:ring-offset-0" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500/50 focus:ring-offset-0"
+                />
                 <span className="text-sm font-medium text-slate-400 group-hover:text-slate-200 transition-colors">Remember my device</span>
               </label>
 

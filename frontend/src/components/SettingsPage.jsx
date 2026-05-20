@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CheckCircle2, Settings2, Sliders, BellRing, Briefcase, RefreshCcw, Save } from "lucide-react";
 import DashboardLayout from "./DashboardLayout";
 import Card from "./ui/Card";
 import Button from "./ui/Button";
+import { api } from "../utils/api";
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState({
@@ -10,9 +11,26 @@ const SettingsPage = () => {
     reminderFrequency: "Weekly",
     preferredServiceProvider: "",
   });
-
-  const [loading, setLoading] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("free");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      api.get("/user/settings"),
+      api.get("/user/profile")
+    ]).then(([settingsRes, profileRes]) => {
+      setSettings({
+        notifications: settingsRes.notifications !== undefined ? settingsRes.notifications : true,
+        reminderFrequency: settingsRes.reminderFrequency || "Weekly",
+        preferredServiceProvider: settingsRes.preferredServiceProvider || "",
+      });
+      setSubscriptionStatus(profileRes.subscriptionStatus || "free");
+    }).catch(err => console.error("Error loading settings:", err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -22,15 +40,41 @@ const SettingsPage = () => {
     });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setSuccess(false);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await api.put("/user/settings", settings);
+      setSettings({
+        notifications: res.notifications !== undefined ? res.notifications : true,
+        reminderFrequency: res.reminderFrequency || "Weekly",
+        preferredServiceProvider: res.preferredServiceProvider || "",
+      });
       setSuccess(true);
-    }, 1200);
+    } catch (err) {
+      console.error("Error saving settings:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    try {
+      const res = await api.post("/stripe/create-checkout-session");
+      if (res.url) {
+        window.location.href = res.url;
+      } else {
+        alert("Failed to create Stripe payment session.");
+      }
+    } catch (err) {
+      console.error("Error upgrading:", err);
+      alert(err.message || "Error creating Stripe session.");
+    } finally {
+      setUpgrading(false);
+    }
   };
 
   return (
@@ -46,6 +90,36 @@ const SettingsPage = () => {
             <p className="section-subheader">Configure your personal preferences and notification rules</p>
           </div>
         </div>
+
+        {/* Billing / Plan Card */}
+        <Card variant="bordered" className="p-6 bg-surface/80 border-indigo-500/20 mb-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Account Plan</span>
+              <h2 className="text-xl font-extrabold text-white mt-1">
+                AutoFlow {subscriptionStatus === "premium" ? "Premium 🚀" : "Basic (Free)"}
+              </h2>
+              <p className="text-slate-400 text-xs mt-1.5 max-w-md">
+                {subscriptionStatus === "premium" 
+                  ? "Thank you for supporting AutoFlow! You have unlocked all premium metrics, reports, and unlimited fleet logs." 
+                  : "Unlock premium analytics, priority notifications, and automatic scheduling features."
+                }
+              </p>
+            </div>
+            {subscriptionStatus !== "premium" && (
+              <Button 
+                onClick={handleUpgrade} 
+                variant="primary" 
+                size="md" 
+                isLoading={upgrading}
+                className="w-full sm:w-auto shrink-0 bg-gradient-to-r from-indigo-500 to-purple-500 border-none hover:opacity-90 shadow-lg shadow-indigo-500/25"
+              >
+                Upgrade to Premium
+              </Button>
+            )}
+          </div>
+        </Card>
 
         <Card variant="bordered" className="bg-[#0D1424]/80 p-8 relative overflow-hidden">
           
@@ -134,7 +208,7 @@ const SettingsPage = () => {
 
             {/* Save button */}
             <div className="pt-4 border-t border-white/5">
-               <Button type="submit" variant="primary" className="w-full" size="lg" isLoading={loading} icon={Save}>
+               <Button type="submit" variant="primary" className="w-full" size="lg" isLoading={saving} icon={Save}>
                  Save Preferences
                </Button>
             </div>
