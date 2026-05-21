@@ -194,7 +194,7 @@ const DashboardLayout = ({ children }) => {
         </nav>
 
         {/* Bottom sign out */}
-        <div className="p-3 border-t border-white/5">
+        <div className="p-3 border-t border-white/5 safe-pb">
           <Link
             to="/login"
             onClick={handleSignOut}
@@ -256,7 +256,7 @@ const DashboardLayout = ({ children }) => {
                 ))}
               </nav>
 
-              <div className="p-3 border-t border-white/5">
+              <div className="p-3 border-t border-white/5 safe-pb">
                 <Link
                   to="/login"
                   onClick={() => {

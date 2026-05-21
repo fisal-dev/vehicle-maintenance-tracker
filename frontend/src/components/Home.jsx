@@ -29,11 +29,11 @@ const HomePage = () => {
             <Activity className="w-4 h-4" /> Next-Gen Fleet Intelligence
           </motion.div>
 
-          <h1 className="text-5xl lg:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-500 mb-8 tracking-tight leading-[1.05]">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-500 mb-8 tracking-tight leading-[1.05]">
             Master Your Vehicle's <br className="hidden lg:block"/> True Potential
           </h1>
           
-          <p className="text-lg lg:text-2xl text-slate-400 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+          <p className="text-base sm:text-lg lg:text-2xl text-slate-400 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
             Stay ahead of breakdowns, orchestrate service histories, and master fuel economy with our state-of-the-art telemetry dashboard.
           </p>
 
@@ -112,7 +112,7 @@ const HomePage = () => {
               Streamlined Workflow
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-               {/* Connecting line (desktop) */}
+               {/* Connecting line (desktop only — hidden on mobile where steps stack) */}
                <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-px bg-gradient-to-r from-indigo-500/0 via-indigo-500/50 to-indigo-500/0"></div>
                
                {[

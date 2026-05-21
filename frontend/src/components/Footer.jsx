@@ -32,7 +32,7 @@ export default function Footer() {
       {/* Subtle gradient top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 safe-pb">
         <div className="flex flex-col md:flex-row justify-between items-start gap-10">
 
           {/* Brand */}
@@ -50,7 +50,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 mt-5">
               {[
-                { Icon: FaGithub, href: "https://github.com/fisal-dev/vehicle-maintenance-tracker" },
+                { Icon: FaGithub, href: "https://github.com/fisal-dev/auto_flow" },
                 { Icon: FaLinkedin, href: "https://www.linkedin.com/in/fisalkhan/" },
               ].map(({ Icon, href }, i) => (
                 <a
@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex gap-16">
+          <div className="flex gap-8 sm:gap-16 flex-wrap">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-slate-600 mb-4">Product</p>
               <ul className="space-y-2.5">

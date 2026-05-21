@@ -219,8 +219,8 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="premium-table">
+            <div className="table-scroll">
+              <table className="premium-table min-w-[600px]">
                 <thead>
                   <tr>
                     <th className="pl-6">Vehicle</th>
@@ -409,8 +409,8 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="premium-table">
+          <div className="table-scroll">
+            <table className="premium-table min-w-[500px]">
               <thead>
                 <tr>
                   <th className="pl-6">Vehicle</th>

@@ -88,7 +88,7 @@ const StatCard = ({
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">
             {title}
           </p>
-          <p className="text-3xl font-extrabold text-white tracking-tight leading-none">
+          <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none break-all">
             {value}
           </p>
           {subtitle && (

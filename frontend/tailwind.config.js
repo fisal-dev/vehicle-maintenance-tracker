@@ -41,7 +41,11 @@ export default {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         }
-      }
+      },
+      screens: {
+        'xs': '375px',
+        '3xl': '1920px',
+      },
     },
   },
   plugins: [],
