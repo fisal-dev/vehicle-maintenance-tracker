@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const connStr = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/vehicle-tracker';
+    const connStr = process.env.MONGODB_URI;
+    if (!connStr) {
+      throw new Error('MONGODB_URI is not defined in the environment variables');
+    }
     await mongoose.connect(connStr);
     console.log(`MongoDB Connected: ${connStr}`);
   } catch (err) {
