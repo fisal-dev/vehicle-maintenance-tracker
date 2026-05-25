@@ -256,6 +256,7 @@ const userController = {
       `;
 
       let emailSent = false;
+      let emailError = null;
       try {
         const mailResult = await sendEmail({
           to: email,
@@ -264,15 +265,19 @@ const userController = {
         });
         if (mailResult && mailResult.success !== false) {
           emailSent = true;
+        } else if (mailResult && mailResult.message) {
+          emailError = mailResult.message;
         }
       } catch (mailErr) {
+        emailError = mailErr.message;
         console.error('Real email dispatch failed, running console fallback:', mailErr.message);
       }
 
       res.json({
-        message: 'Verification code sent to email',
+        message: emailSent ? 'Verification code sent to email' : `Demo fallback mode active (Email failed: ${emailError})`,
         demoCode: emailSent ? undefined : code,
-        emailSent
+        emailSent,
+        emailError
       });
     } catch (err) {
       console.error(err);
