@@ -231,8 +231,11 @@ const userController = {
       const emailHtml = `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #070a08; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(132, 204, 22, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #84cc16;">Flow</span></h2>
-            <p style="color: #65a30d; font-size: 14px; margin-top: 5px; font-weight: 600; letter-spacing: 0.5px;">Smart Fleet Management Platform</p>
+            <div style="display: inline-block; margin-bottom: 12px;">
+              <img src="https://auto-flow-810.pages.dev/autoflow_logo.png" alt="AutoFlow Logo" style="width: 52px; height: 52px; border-radius: 12px; box-shadow: 0 0 20px rgba(132, 204, 22, 0.3); border: 1px solid rgba(132, 204, 22, 0.2);">
+            </div>
+            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">Auto<span style="color: #84cc16;">Flow</span></h2>
+            <p style="color: #65a30d; font-size: 13px; margin-top: 6px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0;">Smart Fleet Management</p>
           </div>
           
           <div style="background-color: #0d1410; padding: 30px; border-radius: 8px; border: 1px solid rgba(132, 204, 22, 0.1);">
@@ -336,8 +339,11 @@ const userController = {
       const confirmationHtml = `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #070a08; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(132, 204, 22, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #84cc16;">Flow</span></h2>
-            <p style="color: #65a30d; font-size: 14px; margin-top: 5px; font-weight: 600; letter-spacing: 0.5px;">Smart Fleet Management Platform</p>
+            <div style="display: inline-block; margin-bottom: 12px;">
+              <img src="https://auto-flow-810.pages.dev/autoflow_logo.png" alt="AutoFlow Logo" style="width: 52px; height: 52px; border-radius: 12px; box-shadow: 0 0 20px rgba(132, 204, 22, 0.3); border: 1px solid rgba(132, 204, 22, 0.2);">
+            </div>
+            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px; line-height: 1.2;">Auto<span style="color: #84cc16;">Flow</span></h2>
+            <p style="color: #65a30d; font-size: 13px; margin-top: 6px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0;">Smart Fleet Management</p>
           </div>
           
           <div style="background-color: #0d1410; padding: 30px; border-radius: 8px; border: 1px solid rgba(132, 204, 22, 0.1);">
