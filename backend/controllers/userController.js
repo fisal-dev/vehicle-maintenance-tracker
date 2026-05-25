@@ -229,26 +229,26 @@ const userController = {
 
       // Send real email via SMTP / Gmail App Passwords
       const emailHtml = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #1e293b; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);">
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #070a08; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(132, 204, 22, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #6366f1; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #a5b4fc;">Flow</span></h2>
-            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Smart Fleet Management Platform</p>
+            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #84cc16;">Flow</span></h2>
+            <p style="color: #65a30d; font-size: 14px; margin-top: 5px; font-weight: 600; letter-spacing: 0.5px;">Smart Fleet Management Platform</p>
           </div>
           
-          <div style="background-color: #111827; padding: 30px; border-radius: 8px; border: 1px solid #334155;">
+          <div style="background-color: #0d1410; padding: 30px; border-radius: 8px; border: 1px solid rgba(132, 204, 22, 0.1);">
             <h3 style="color: #ffffff; font-size: 20px; margin-top: 0; font-weight: 700; text-align: center;">Reset Your Password</h3>
             <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; text-align: center;">We received a request to reset your AutoFlow access credentials. Use the secure, 6-digit verification code below to proceed with setting up your new password.</p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <div style="display: inline-block; background-color: #1e1b4b; border: 1px solid #4f46e5; border-radius: 8px; padding: 15px 30px; font-family: monospace; font-size: 32px; font-weight: bold; color: #818cf8; letter-spacing: 6px; box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);">
+              <div style="display: inline-block; background-color: #152219; border: 1px solid #84cc16; border-radius: 8px; padding: 15px 30px; font-family: monospace; font-size: 32px; font-weight: bold; color: #a3e635; letter-spacing: 6px; box-shadow: 0 0 15px rgba(132, 204, 22, 0.25);">
                 ${code}
               </div>
             </div>
             
-            <p style="color: #ef4444; font-size: 13px; line-height: 1.5; text-align: center; font-weight: 600; margin-bottom: 0;">This verification code is secure and will expire in 10 minutes.</p>
+            <p style="color: #f43f5e; font-size: 13px; line-height: 1.5; text-align: center; font-weight: 600; margin-bottom: 0;">This verification code is secure and will expire in 10 minutes.</p>
           </div>
           
-          <div style="text-align: center; margin-top: 30px; color: #64748b; font-size: 12px; line-height: 1.5;">
+          <div style="text-align: center; margin-top: 30px; color: #475569; font-size: 12px; line-height: 1.5;">
             <p style="margin: 0;">If you did not request a password reset, please ignore this email or contact security support.</p>
             <p style="margin: 5px 0 0 0;">© ${new Date().getFullYear()} AutoFlow Technologies Inc. All rights reserved.</p>
           </div>
@@ -334,23 +334,23 @@ const userController = {
 
       // Send a security confirmation email
       const confirmationHtml = `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid #1e293b; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);">
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #070a08; color: #f8fafc; padding: 40px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(132, 204, 22, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.55);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: #6366f1; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #a5b4fc;">Flow</span></h2>
-            <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Smart Fleet Management Platform</p>
+            <h2 style="color: #ffffff; font-weight: 800; font-size: 28px; margin: 0; letter-spacing: -0.5px;">Auto<span style="color: #84cc16;">Flow</span></h2>
+            <p style="color: #65a30d; font-size: 14px; margin-top: 5px; font-weight: 600; letter-spacing: 0.5px;">Smart Fleet Management Platform</p>
           </div>
           
-          <div style="background-color: #111827; padding: 30px; border-radius: 8px; border: 1px solid #334155;">
+          <div style="background-color: #0d1410; padding: 30px; border-radius: 8px; border: 1px solid rgba(132, 204, 22, 0.1);">
             <div style="text-align: center; margin-bottom: 20px;">
-              <div style="display: inline-block; background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 50%; padding: 15px;">
-                <span style="font-size: 32px; color: #10b981; line-height: 1;">✓</span>
+              <div style="display: inline-block; background-color: rgba(132, 204, 22, 0.1); border: 1px solid #84cc16; border-radius: 50%; padding: 15px; width: 60px; height: 60px; line-height: 30px;">
+                <span style="font-size: 32px; color: #a3e635; font-weight: bold;">✓</span>
               </div>
             </div>
             
             <h3 style="color: #ffffff; font-size: 20px; margin-top: 0; font-weight: 700; text-align: center;">Password Changed Successfully</h3>
             <p style="color: #94a3b8; font-size: 15px; line-height: 1.6; text-align: center;">This is a confirmation that the password for your AutoFlow account <strong>${email}</strong> has been successfully updated.</p>
             
-            <div style="margin: 25px 0; padding: 20px; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 8px; text-align: left;">
+            <div style="margin: 25px 0; padding: 20px; background-color: #070a08; border: 1px solid rgba(132, 204, 22, 0.15); border-radius: 8px; text-align: left;">
               <div style="color: #cbd5e1; font-size: 14px; margin-bottom: 10px; font-weight: bold;">Security Details:</div>
               <div style="color: #94a3b8; font-size: 13px; margin-bottom: 6px;">• <strong>Action:</strong> Password Reset via Verification Code</div>
               <div style="color: #94a3b8; font-size: 13px; margin-bottom: 6px;">• <strong>Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })} (IST)</div>
@@ -360,7 +360,7 @@ const userController = {
             <p style="color: #94a3b8; font-size: 14px; line-height: 1.5; text-align: center; margin-bottom: 0;">If you authorized this change, no further action is required. If you did not make this change, please contact support immediately to lock and secure your account.</p>
           </div>
           
-          <div style="text-align: center; margin-top: 30px; color: #64748b; font-size: 12px; line-height: 1.5;">
+          <div style="text-align: center; margin-top: 30px; color: #475569; font-size: 12px; line-height: 1.5;">
             <p style="margin: 0;">This is an automated security notification. Please do not reply directly to this email.</p>
             <p style="margin: 5px 0 0 0;">© ${new Date().getFullYear()} AutoFlow Technologies Inc. All rights reserved.</p>
           </div>
