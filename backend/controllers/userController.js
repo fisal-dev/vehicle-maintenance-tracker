@@ -348,9 +348,13 @@ const userController = {
           
           <div style="background-color: #0d1410; padding: 30px; border-radius: 8px; border: 1px solid rgba(132, 204, 22, 0.1);">
             <div style="text-align: center; margin-bottom: 20px;">
-              <div style="display: inline-block; background-color: rgba(132, 204, 22, 0.1); border: 1px solid #84cc16; border-radius: 50%; padding: 15px; width: 60px; height: 60px; line-height: 30px;">
-                <span style="font-size: 32px; color: #a3e635; font-weight: bold;">✓</span>
-              </div>
+              <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" valign="middle" style="background-color: rgba(132, 204, 22, 0.1); border: 1px solid #84cc16; border-radius: 50%; width: 56px; height: 56px; text-align: center;">
+                    <span style="font-size: 26px; color: #a3e635; font-weight: bold; line-height: 56px; display: block; margin-top: -1px;">✓</span>
+                  </td>
+                </tr>
+              </table>
             </div>
             
             <h3 style="color: #ffffff; font-size: 20px; margin-top: 0; font-weight: 700; text-align: center;">Password Changed Successfully</h3>
